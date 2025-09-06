@@ -2,8 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <title>Расписание ДЭ 24-25</title>
     <style>
         * {
@@ -34,7 +33,7 @@
         header {
             background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
             color: white;
-            padding: 16px 12px;
+            padding: 12px;
             position: sticky;
             top: 0;
             z-index: 100;
@@ -42,48 +41,28 @@
         }
         
         h1 {
-            font-size: 1.3em;
-            margin-bottom: 12px;
+            font-size: 1.2em;
+            margin-bottom: 10px;
             font-weight: 600;
             text-align: center;
         }
         
-        .week-info {
-            display: flex;
-            flex-direction: column;
+        .compact-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
             gap: 6px;
         }
         
-        .info-card {
+        .info-item {
             background: rgba(255, 255, 255, 0.15);
-            padding: 8px 10px;
+            padding: 6px 8px;
             border-radius: 6px;
-            font-weight: 500;
-            font-size: 0.85em;
-            text-align: center;
-        }
-        
-        .week-toggle {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-            gap: 10px;
-        }
-        
-        .week-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            cursor: pointer;
             font-size: 0.8em;
-            transition: all 0.2s ease;
-        }
-        
-        .week-btn.active {
-            background: #3498db;
-            box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 32px;
         }
         
         .schedule-container {
@@ -93,10 +72,48 @@
             flex-direction: column;
         }
         
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .group-selector {
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9em;
+            background: white;
+        }
+        
+        .week-toggle {
+            display: flex;
+            background: #ecf0f1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .week-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.85em;
+        }
+        
+        .week-btn.active {
+            background: #3498db;
+            color: white;
+        }
+        
         .day-selector {
             display: flex;
             overflow-x: auto;
-            gap: 4px;
+            gap: 0;
             margin-bottom: 16px;
             padding: 4px 0;
             -webkit-overflow-scrolling: touch;
@@ -108,18 +125,19 @@
         }
         
         .day-btn {
-            padding: 10px 12px;
+            flex: 1;
+            padding: 10px 6px;
             border: none;
-            border-radius: 8px;
             background: #ecf0f1;
             cursor: pointer;
             transition: all 0.2s ease;
             font-weight: 500;
             font-size: 0.8em;
             white-space: nowrap;
-            flex: 1;
             min-width: 0;
             text-align: center;
+            margin-right: 5px;
+            border-radius: 10px;
         }
         
         .day-btn.active {
@@ -241,7 +259,7 @@
 
         @media (max-width: 320px) {
             .day-btn {
-                padding: 8px 10px;
+                padding: 8px 4px;
                 font-size: 0.75em;
             }
             
@@ -251,6 +269,11 @@
             
             .subject {
                 font-size: 0.85em;
+            }
+            
+            .info-item {
+                font-size: 0.75em;
+                padding: 5px 6px;
             }
         }
 
@@ -284,8 +307,8 @@
                 min-height: 100vh;
             }
             
-            .week-info {
-                flex-direction: column;
+            .compact-info {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -293,19 +316,27 @@
 <body>
     <div class="container">
         <header>
-            <h1>ДЭ 24-25</h1>
-            <div class="week-info">
-                <div class="info-card" id="current-day">День: ...</div>
-                <div class="info-card" id="week-type">Неделя: ...</div>
-                <div class="info-card" id="current-date">Дата: ...</div>
-            </div>
-            <div class="week-toggle">
-                <button class="week-btn" id="odd-week-btn">Нечетная</button>
-                <button class="week-btn" id="even-week-btn">Четная</button>
+            <h1>Расписание групп ДЭ</h1>
+            <div class="compact-info">
+                <div class="info-item" id="current-group">Группа: ...</div>
+                <div class="info-item" id="current-day">День: ...</div>
+                <div class="info-item" id="week-type">Неделя: ...</div>
+                <div class="info-item" id="current-date">Дата: ...</div>
             </div>
         </header>
         
         <div class="schedule-container">
+            <div class="controls">
+                <select class="group-selector" id="group-selector">
+                    <option value="">Загрузка групп...</option>
+                </select>
+                
+                <div class="week-toggle">
+                    <button class="week-btn" id="odd-week-btn">Нечетная</button>
+                    <button class="week-btn" id="even-week-btn">Четная</button>
+                </div>
+            </div>
+            
             <div class="day-selector" id="day-selector"></div>
             
             <div class="schedule-list" id="schedule-list"></div>
@@ -321,25 +352,57 @@
         let scheduleData = {};
         let currentDayIndex = 0;
         let currentWeekType = 'odd_week';
+        let currentGroup = '';
 
-        // Функция для загрузки JSON файла
         async function loadScheduleData() {
             try {
-                const response = await fetch('schedule.json');
-                if (!response.ok) {
-                    throw new Error('Не удалось загрузить расписание');
-                }
+                const response = await fetch('merged_schedule.json');
                 scheduleData = await response.json();
-                initializeApp();
+                populateGroupSelector();
+                
+                const savedGroup = localStorage.getItem('selectedGroup');
+                if (savedGroup && scheduleData.groups.some(group => group.group === savedGroup)) {
+                    currentGroup = savedGroup;
+                    document.getElementById('group-selector').value = savedGroup;
+                } else if (scheduleData.groups.length > 0) {
+                    currentGroup = scheduleData.groups[0].group;
+                    document.getElementById('group-selector').value = currentGroup;
+                }
+                
+                const weekNumber = getWeekNumber();
+                currentWeekType = weekNumber % 2 !== 0 ? 'odd_week' : 'even_week';
+                
+                const oddWeekBtn = document.getElementById('odd-week-btn');
+                const evenWeekBtn = document.getElementById('even-week-btn');
+                if (oddWeekBtn && evenWeekBtn) {
+                    oddWeekBtn.classList.toggle('active', currentWeekType === 'odd_week');
+                    evenWeekBtn.classList.toggle('active', currentWeekType === 'even_week');
+                }
+                
+                currentDayIndex = new Date().getDay() - 1;
+                if (currentDayIndex < 0 || currentDayIndex > 4) {
+                    currentDayIndex = 0;
+                }
+                
+                if (currentGroup) {
+                    renderSchedule(currentWeekType, currentDayIndex);
+                }
             } catch (error) {
                 console.error('Ошибка загрузки расписания:', error);
-                document.getElementById('schedule-list').innerHTML = `
-                    <div class="next-day-notice">
-                        <div>Ошибка загрузки расписания</div>
-                        <button class="next-day-btn" onclick="location.reload()">Перезагрузить</button>
-                    </div>
-                `;
+                document.getElementById('schedule-list').innerHTML = '<div class="no-class">Ошибка загрузки расписания. Проверьте наличие файла merged_schedule.json</div>';
             }
+        }
+
+        function populateGroupSelector() {
+            const groupSelector = document.getElementById('group-selector');
+            groupSelector.innerHTML = '';
+            
+            scheduleData.groups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group.group;
+                option.textContent = group.group;
+                groupSelector.appendChild(option);
+            });
         }
 
         function getWeekNumber() {
@@ -380,54 +443,44 @@
         }
 
         function renderSchedule(weekType, dayIndex) {
-            // Проверяем, что данные загружены
-            if (!scheduleData.schedule || !scheduleData.schedule[weekType]) {
-                console.error('Данные расписания не загружены');
-                return;
-            }
+            if (!currentGroup) return;
             
-            const weekData = scheduleData.schedule[weekType];
+            const groupData = scheduleData.groups.find(g => g.group === currentGroup);
+            if (!groupData) return;
+            
+            const weekData = groupData.schedule[weekType];
             const dayData = weekData.days[dayIndex];
             const scheduleList = document.getElementById('schedule-list');
             
-            document.getElementById('current-day').textContent = `День: ${dayData.day}`;
-            document.getElementById('week-type').textContent = `Неделя: ${weekData.week_type}`;
-            document.getElementById('current-date').textContent = `Дата: ${new Date().toLocaleDateString('ru-RU')}`;
+            document.getElementById('current-group').textContent = currentGroup;
+            document.getElementById('current-day').textContent = dayData.day;
+            document.getElementById('week-type').textContent = weekData.week_type;
+            document.getElementById('current-date').textContent = new Date().toLocaleDateString('ru-RU');
             
             document.querySelectorAll('.day-btn').forEach((btn, index) => {
                 btn.classList.toggle('active', index === dayIndex);
             });
             
-            // Безопасное обновление кнопок недели
-            const oddWeekBtn = document.getElementById('odd-week-btn');
-            const evenWeekBtn = document.getElementById('even-week-btn');
-            
-            if (oddWeekBtn && evenWeekBtn) {
-                oddWeekBtn.classList.remove('active');
-                evenWeekBtn.classList.remove('active');
-                
-                if (weekType === 'odd_week') {
-                    oddWeekBtn.classList.add('active');
-                } else {
-                    evenWeekBtn.classList.add('active');
-                }
-            }
-            
             scheduleList.innerHTML = '';
             
-            dayData.lessons.forEach((lesson) => {
+            dayData.lessons.forEach((lesson, index) => {
                 const lessonElement = document.createElement('div');
                 lessonElement.className = `lesson-card ${!lesson.subject ? 'no-class' : ''}`;
                 
                 if (lesson.subject) {
                     let teacherText = '';
-                    if (lesson.teachers) {
+                    if (lesson.teachers && lesson.teachers.length > 0) {
                         teacherText = lesson.teachers.map(t => `${t.name} (${t.room})`).join(' / ');
                     } else if (lesson.teacher) {
                         teacherText = lesson.teacher;
                         if (lesson.room) {
                             teacherText += ` (${lesson.room})`;
                         }
+                    }
+                    
+                    let roomText = '';
+                    if (lesson.room && (!lesson.teachers || lesson.teachers.length === 0)) {
+                        roomText = lesson.room;
                     }
                     
                     lessonElement.innerHTML = `
@@ -438,6 +491,7 @@
                                 ${lesson.subject}
                             </div>
                             ${teacherText ? `<div class="teacher">${teacherText}</div>` : ''}
+                            ${roomText ? `<div class="room">${roomText}</div>` : ''}
                             ${lesson.note ? `<div class="note">${lesson.note}</div>` : ''}
                         </div>
                     `;
@@ -477,39 +531,31 @@
             });
         }
 
-        function setupWeekToggleHandlers() {
-            const oddWeekBtn = document.getElementById('odd-week-btn');
-            const evenWeekBtn = document.getElementById('even-week-btn');
-            
-            if (oddWeekBtn && evenWeekBtn) {
-                oddWeekBtn.addEventListener('click', () => {
-                    currentWeekType = 'odd_week';
-                    renderSchedule(currentWeekType, currentDayIndex);
-                });
-                
-                evenWeekBtn.addEventListener('click', () => {
-                    currentWeekType = 'even_week';
-                    renderSchedule(currentWeekType, currentDayIndex);
-                });
-            }
-        }
-
-        function initializeApp() {
+        document.addEventListener('DOMContentLoaded', () => {
             createDayButtons();
-            setupWeekToggleHandlers();
+            loadScheduleData();
             
-            const weekNumber = getWeekNumber();
-            currentWeekType = weekNumber % 2 !== 0 ? 'odd_week' : 'even_week';
-            currentDayIndex = new Date().getDay() - 1;
+            document.getElementById('group-selector').addEventListener('change', function() {
+                currentGroup = this.value;
+                localStorage.setItem('selectedGroup', currentGroup);
+                renderSchedule(currentWeekType, currentDayIndex);
+            });
             
-            if (currentDayIndex < 0 || currentDayIndex > 4) {
-                currentDayIndex = 0;
-            }
+            document.getElementById('odd-week-btn').addEventListener('click', function() {
+                currentWeekType = 'odd_week';
+                document.getElementById('odd-week-btn').classList.add('active');
+                document.getElementById('even-week-btn').classList.remove('active');
+                renderSchedule(currentWeekType, currentDayIndex);
+            });
             
-            renderSchedule(currentWeekType, currentDayIndex);
-        }
+            document.getElementById('even-week-btn').addEventListener('click', function() {
+                currentWeekType = 'even_week';
+                document.getElementById('even-week-btn').classList.add('active');
+                document.getElementById('odd-week-btn').classList.remove('active');
+                renderSchedule(currentWeekType, currentDayIndex);
+            });
+        });
 
-        document.addEventListener('DOMContentLoaded', loadScheduleData);
         window.showNextDay = showNextDay;
     </script>
 </body>
