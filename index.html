@@ -380,6 +380,12 @@
         }
 
         function renderSchedule(weekType, dayIndex) {
+            // Проверяем, что данные загружены
+            if (!scheduleData.schedule || !scheduleData.schedule[weekType]) {
+                console.error('Данные расписания не загружены');
+                return;
+            }
+            
             const weekData = scheduleData.schedule[weekType];
             const dayData = weekData.days[dayIndex];
             const scheduleList = document.getElementById('schedule-list');
@@ -392,10 +398,20 @@
                 btn.classList.toggle('active', index === dayIndex);
             });
             
-            document.querySelectorAll('.week-btn').forEach((btn) => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(`${weekType}-week-btn`).classList.add('active');
+            // Безопасное обновление кнопок недели
+            const oddWeekBtn = document.getElementById('odd-week-btn');
+            const evenWeekBtn = document.getElementById('even-week-btn');
+            
+            if (oddWeekBtn && evenWeekBtn) {
+                oddWeekBtn.classList.remove('active');
+                evenWeekBtn.classList.remove('active');
+                
+                if (weekType === 'odd_week') {
+                    oddWeekBtn.classList.add('active');
+                } else {
+                    evenWeekBtn.classList.add('active');
+                }
+            }
             
             scheduleList.innerHTML = '';
             
@@ -409,6 +425,9 @@
                         teacherText = lesson.teachers.map(t => `${t.name} (${t.room})`).join(' / ');
                     } else if (lesson.teacher) {
                         teacherText = lesson.teacher;
+                        if (lesson.room) {
+                            teacherText += ` (${lesson.room})`;
+                        }
                     }
                     
                     lessonElement.innerHTML = `
@@ -419,7 +438,6 @@
                                 ${lesson.subject}
                             </div>
                             ${teacherText ? `<div class="teacher">${teacherText}</div>` : ''}
-                            ${lesson.room && !lesson.teachers ? `<div class="room">${lesson.room}</div>` : ''}
                             ${lesson.note ? `<div class="note">${lesson.note}</div>` : ''}
                         </div>
                     `;
@@ -459,8 +477,26 @@
             });
         }
 
+        function setupWeekToggleHandlers() {
+            const oddWeekBtn = document.getElementById('odd-week-btn');
+            const evenWeekBtn = document.getElementById('even-week-btn');
+            
+            if (oddWeekBtn && evenWeekBtn) {
+                oddWeekBtn.addEventListener('click', () => {
+                    currentWeekType = 'odd_week';
+                    renderSchedule(currentWeekType, currentDayIndex);
+                });
+                
+                evenWeekBtn.addEventListener('click', () => {
+                    currentWeekType = 'even_week';
+                    renderSchedule(currentWeekType, currentDayIndex);
+                });
+            }
+        }
+
         function initializeApp() {
             createDayButtons();
+            setupWeekToggleHandlers();
             
             const weekNumber = getWeekNumber();
             currentWeekType = weekNumber % 2 !== 0 ? 'odd_week' : 'even_week';
@@ -469,17 +505,6 @@
             if (currentDayIndex < 0 || currentDayIndex > 4) {
                 currentDayIndex = 0;
             }
-            
-            // Добавляем обработчики для переключателя недель
-            document.getElementById('odd-week-btn').addEventListener('click', () => {
-                currentWeekType = 'odd_week';
-                renderSchedule(currentWeekType, currentDayIndex);
-            });
-            
-            document.getElementById('even-week-btn').addEventListener('click', () => {
-                currentWeekType = 'even_week';
-                renderSchedule(currentWeekType, currentDayIndex);
-            });
             
             renderSchedule(currentWeekType, currentDayIndex);
         }
